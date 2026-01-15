@@ -16,32 +16,32 @@ export function Home() {
                     </button>
                 </section>
 
-                <h1
-                className="font-bold text-2xl mt-6 mb-4 text-center"
-                >
+                <h1 className="font-bold text-2xl mt-6 mb-4 text-center">
                     Carros novos e usados em todo o Brasil
                 </h1>
 
-                <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-4">
+                <main className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <section>
                         <img
                         src="https://cdn.motor1.com/images/mgl/AkB8vL/s3/fiat-mobi-2023.webp"
                         alt="img carro"
-                        className="w-full rounded-lg mb-2"
+                        className="w-full rounded-lg mb-2 max-h-72 transition-all hover:scale-105"
                         />
-                        <strong>JAGUAR F-PACE</strong>
-                        <div className="flex items-center gap-2 mb-4">
-                            <p>2016/2017</p>
-                            <div className="bg-black rounded-full h-1 w-1"></div>
-                            <p>26999 km</p>
+                        <p className="font-bold mt-1 mb-2 px-2">JAGUAR F-PACE</p>
+                        <div className="flex flex-col px-2">
+                            <span className="text-zinc-700 mb-6">Ano 2016/2017 | 23.000km</span>
+                            <strong className="font-medium text-black text-xl">R$ 239.00</strong>
                         </div>
-                        <strong className="font-bold text-2xl">R$ 239.00</strong>
-                        <div className="border-b-2 border-b-gray-600 mb-2 mt-2">
+                        <div className="w-full h-px bg-slate-200 my-2">
                         </div>
-                        <p>São Paulo - SP</p>
+                        <div className="px-2 pb-2">
+                            <span className="text-black">
+                                São Paulo - SP</span> 
+                        </div>
+
                     </section>
                     
-                </div>
+                </main>
         </Container>
 
 
