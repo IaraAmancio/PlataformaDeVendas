@@ -1,14 +1,19 @@
+import { useEffect } from "react";
 import Logo from "./../../assets/logo.svg" ;
 import { Link, useNavigate } from "react-router";
 import { Container } from "../../components/container";
 import { Input } from "../../components/input";
+
+import { toast } from "react-hot-toast"
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from "zod";
 
 import { auth } from '../../services/firebaseConnection';
-import { createUserWithEmailAndPassword, updateProfile  } from "firebase/auth"; 
+import { createUserWithEmailAndPassword, updateProfile, signOut  } from "firebase/auth"; 
+import { authContext } from "../../contexts/authContext";
+import { useContext } from "react";
 
 const schema = z.object({
     email: z.string().email("Insira um email válido").nonempty("O campo e-mail é obrigatório"),
@@ -21,18 +26,34 @@ type FormData = z.infer<typeof schema>
 export function Register() {
 
     const navigate = useNavigate();
+    const { handleInfoUser } = useContext(authContext);
 
     const {register, handleSubmit, formState: {errors}} = useForm<FormData>({
         resolver: zodResolver(schema),
         mode: "onChange"
     })
 
+    useEffect(()=>{
+        async function logOut(){
+            await signOut(auth);
+        }
+        logOut()
+    },[])
+
     function onSubmit(data: FormData){
         createUserWithEmailAndPassword(auth, data.email, data.password).then(
         async (user) =>{
+                toast.success("Usuário cadastrado com Sucesso!");
                 await updateProfile(user.user, {
                     displayName: data.name
                 })
+                handleInfoUser(
+                    {
+                        name: data?.name,
+                        email: data?.email,
+                        uid: user?.user.uid,
+                    }
+                )
                 console.log("USUARIO CADASTRADO COM SUCESSO!");
                 navigate("/dashboard", {replace: true})
             }
