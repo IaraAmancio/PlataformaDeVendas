@@ -1,10 +1,22 @@
 import { Container } from "../../../components/container";
 import { Input } from "../../../components/input";
 import { DashboardHeader } from "../../../components/painelHeader";
-import { FiUpload } from "react-icons/fi";
+import { FiUpload, FiTrash } from "react-icons/fi";
 import { z } from 'zod';
-import { useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form';
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { ChangeEvent } from "react";
+import { useState, useContext } from "react";
+import { authContext } from "../../../contexts/authContext";
+import { v4 as uuidV4} from 'uuid';
+import { storage } from "../../../services/firebaseConnection";
+import {
+        ref,
+        uploadBytes,
+        getDownloadURL,
+        deleteObject,
+        } from 'firebase/storage'
+
 
 const shema = z.object({
     name: z.string().nonempty("O campo nome é obrigatório"),
@@ -21,15 +33,78 @@ const shema = z.object({
 
 type FormData = z.infer<typeof shema>
 
+interface ImageItemProps{
+    uid: string,
+    name: string,
+    previewUrl: string,
+    url: string,
+}
+
 export function New() {
 
     const { register, handleSubmit, formState: {errors}, reset } =  useForm<FormData>({
         resolver: zodResolver(shema),
         mode: "onChange"
-    })
+    });
+    const { user } = useContext(authContext);
+    const [ carImages, setCarImages ] = useState<ImageItemProps[]>([]);
   
     function onSubmit(data: FormData){
         console.log(data);
+    }
+
+    function handleFile(e: ChangeEvent<HTMLInputElement>){
+        if(e.target.files && e.target.files[0])
+        {
+            const image = e.target.files[0];
+
+            if(image.type === 'image/jpeg' || image.type === 'image/png')
+            {
+                //envia pra base de dados
+                handleUpload(image)
+                
+            }else{
+                return;
+            }
+        }
+    }
+
+    async function handleUpload(image: File){
+        if(!user?.uid){
+            return;
+        }
+        const currentUid = user?.uid;
+        const uidImage = uuidV4();
+
+        const uploadRef = ref(storage, `images/${currentUid}/${uidImage}`);
+
+        uploadBytes(uploadRef, image)
+        .then((snapshot)=>{
+            getDownloadURL(snapshot.ref).then((downloadURL)=>{
+                const imageItem = {
+                    name: uidImage,
+                    uid: currentUid,
+                    previewUrl: URL.createObjectURL(image),
+                    url: downloadURL
+                }
+
+                setCarImages((images)=> [...images, imageItem])
+            })
+        }
+
+        )
+    }
+
+    async function handleDelete(image: ImageItemProps){
+        const pathImage = `images/${user?.uid}/${image?.name}`
+        const refImage = ref(storage, pathImage)
+        try{
+            await deleteObject(refImage);
+            const list = carImages.filter((car) => car.url !== image.url)
+            setCarImages(list)
+        } catch(err){
+            console.log("Erro ao excluir imagem")
+        }
     }
 
     return(
@@ -42,11 +117,26 @@ export function New() {
                         <FiUpload size={30} color="#000"/>
                     </div>
                     <div className="cursor-pointer">
-                        <input type="file" accept="image/*" className="opacity-0 cursor-pointer"/>  
+                        <input type="file" accept="image/*" className="opacity-0 cursor-pointer" onChange={handleFile}/>  
                     </div>
                 </button>
 
+                {
+                    carImages.map((image)=>{
+                        return( 
+                            <div key={image.name} className="w-full h-32 flex items-center justify-center relative">
+                                <FiTrash size={20} color="white" className="absolute cursor-pointer" onClick={()=>handleDelete(image)}/>
+                                <img
+                                    className="w-full h-32 rounded-lg object-cover"
+                                    src={image.previewUrl}
+                                    alt="foto do carro"
+                                />
+                            </div>
+                        )
+                    })
+                }
             </div>
+
             <div className="w-full bg-white flex  p-3 flex-col sm:flex-row items-center rounded-lg gap-2 mt-2">
                 <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
 
