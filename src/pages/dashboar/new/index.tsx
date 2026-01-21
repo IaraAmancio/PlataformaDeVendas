@@ -17,6 +17,8 @@ import {
         deleteObject,
         } from 'firebase/storage'
 
+import { addDoc, collection } from "firebase/firestore";
+import { db } from "../../../services/firebaseConnection";
 
 const shema = z.object({
     name: z.string().nonempty("O campo nome é obrigatório"),
@@ -49,8 +51,44 @@ export function New() {
     const { user } = useContext(authContext);
     const [ carImages, setCarImages ] = useState<ImageItemProps[]>([]);
   
-    function onSubmit(data: FormData){
-        console.log(data);
+    async function onSubmit(data: FormData){
+        // lista com as informações dos carros anexados
+
+        if(carImages.length === 0){
+            alert("Envie alguma imagem!")
+            return;
+        }
+
+        const listImages = carImages.map(car => ({
+            uid: car.uid,
+            name: car.name,
+            url: car.url,
+        }))
+
+        const infoCar = {
+            name: data.name,
+            model: data.model,
+            year: data.year,
+            km: data.km,
+            price: data.price,
+            city: data.city,
+            whatsapp: data.whatsapp,
+            description: data.description,
+            uid: user?.uid,
+            onwer: user?.name,
+            created: new Date(),
+            imagesCar: listImages,
+        }
+
+        addDoc(collection(db, 'cars'), infoCar).then(()=>{
+            reset();
+            setCarImages([])
+            console.log("Dados cadastrados com sucesso!");
+        }).catch((Error)=>{
+            console.log("Dados não cadastrados!")
+            console.log(Error);
+        })
+
     }
 
     function handleFile(e: ChangeEvent<HTMLInputElement>){
