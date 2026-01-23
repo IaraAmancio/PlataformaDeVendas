@@ -26,6 +26,7 @@ interface carProps {
 export function Home() {
     
     const [cars, setCars] = useState<carProps[]>([]); 
+    const [loaded, setLoaded] = useState<string[]>([]);
 
     useEffect((()=>{
 
@@ -37,13 +38,13 @@ export function Home() {
                 let listcars = [] as carProps[];
                 snapshot.forEach((doc)=>{
                     listcars.push({
-                        id: doc.id,
-                        name: doc.data().name,
+                        id: doc?.id,
+                        name: doc.data()?.name,
                         year: doc.data().year,
-                        km: doc.data().km,
-                        price: doc.data().price,
-                        city: doc.data().price,
-                        imagesCar: doc.data().imagesCar
+                        km: doc.data()?.km,
+                        price: doc.data()?.price,
+                        city: doc.data()?.city,
+                        imagesCar: doc.data()?.imagesCar
                     })
                 })
                 setCars(listcars);
@@ -67,6 +68,10 @@ export function Home() {
 
 
     }), [])
+
+    function handleLoad(id: string){
+        setLoaded([...loaded, id]);
+    }
     
     return(
         <Container>
@@ -86,24 +91,33 @@ export function Home() {
                 </h1>
 
                 <main className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {cars.map(carro=> 
+                    {cars.map(car=> 
                      (
-                        <Link id={carro.id} to={`cardetails/${carro.id}`}>
+                        <Link className="w-full bg-white rounded-lg" id={car.id} to={`cardetails/${car.id}`}>
+
+                            <div className="w-full bg-slate-200 rounded-lg mb-2 h-56 transition-all hover:scale-105"
+                            style={{display: loaded.includes(car.id)? "none": "block"}}
+                            >
+                            </div>
+    
                             <img
-                                src={carro.imagesCar[0].url}
+                                src={car.imagesCar[0].url}
                                 alt="img carro"
-                                className="w-full rounded-lg mb-2 max-h-50 transition-all hover:scale-105"
-                            />
-                            <p className="font-bold mt-1 mb-2 px-2">{carro?.name}</p>
+                                className="w-full rounded-lg mb-2 h-56 object-cover transition-all hover:scale-105"
+                                onLoad={()=>handleLoad(car.id)}
+                                style={{display: loaded.includes(car.id)? "block": "none"}}
+                            />                            
+
+                            <p className="font-bold mt-1 mb-2 px-2">{car?.name}</p>
                             <div className="flex flex-col px-2">
-                                <span className="text-zinc-700 mb-6">Ano {carro?.year} | {carro?.km}</span>
-                                <strong className="font-medium text-black text-xl">{carro?.price}</strong>
+                                <span className="text-zinc-700 mb-6">Ano {car?.year} | {car?.km} km</span>
+                                <strong className="font-medium text-black text-xl">R$ {car?.price}</strong>
                             </div>
                             <div className="w-full h-px bg-slate-200 my-2">
                             </div>
                             <div className="px-2 pb-2">
                                 <span className="text-black">
-                                    {carro?.city}</span> 
+                                    {car?.city}</span> 
                             </div>
 
                         </Link> 
