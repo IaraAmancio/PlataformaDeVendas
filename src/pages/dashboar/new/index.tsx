@@ -27,7 +27,7 @@ const shema = z.object({
     km: z.string().nonempty("O KM do carro é obrigatório"),
     price: z.string().nonempty("O preço do carro é obrigatório"),
     city: z.string().nonempty("O preço do carro é obrigatório"),
-    whatsapp: z.string().min(1, "O telefone é obrigatório").refine((value)=> /^(\d{10,11})$/.test(value), {
+    whatsapp: z.string().min(1, "O telefone é obrigatório").refine((value)=> /^(\d{11,12})$/.test(value), {
         message: "Número de telefone inválido."
     }),
     description: z.string().nonempty("A descrição é obrigatória")
