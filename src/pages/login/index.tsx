@@ -31,11 +31,12 @@ export function Login() {
     function onSubmit(data: FormData){
         signInWithEmailAndPassword(auth, data.email, data.password).then(
             (user)=>{
+                toast.success("LOGADO COM SUCESSO!")
                 navigate("/dashboard", {replace:true});
                 console.log(user)
             }
         ).catch((error)=>{
-            toast.error("Dados incorretos! Tente novamente!")
+            toast.error("Erro ao fazer o Login!")
             console.log(error)
         })
     }

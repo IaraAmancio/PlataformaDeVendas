@@ -19,6 +19,7 @@ import {
 
 import { addDoc, collection } from "firebase/firestore";
 import { db } from "../../../services/firebaseConnection";
+import toast from "react-hot-toast";
 
 const shema = z.object({
     name: z.string().nonempty("O campo nome é obrigatório"),
@@ -55,7 +56,7 @@ export function New() {
         // lista com as informações dos carros anexados
 
         if(carImages.length === 0){
-            alert("Envie alguma imagem!")
+            toast.error("Envie pelo menos 1 imagem!")
             return;
         }
 
@@ -66,7 +67,7 @@ export function New() {
         }))
 
         const infoCar = {
-            name: data.name,
+            name: data.name.toUpperCase(),
             model: data.model,
             year: data.year,
             km: data.km,
@@ -82,10 +83,11 @@ export function New() {
 
         addDoc(collection(db, 'cars'), infoCar).then(()=>{
             reset();
-            setCarImages([])
+            setCarImages([]);
+            toast.success("Carro cadastrado com sucesso!");
             console.log("Dados cadastrados com sucesso!");
         }).catch((Error)=>{
-            console.log("Dados não cadastrados!")
+            console.log("Dados não cadastrados!");
             console.log(Error);
         })
 
@@ -99,6 +101,7 @@ export function New() {
             if(image.type === 'image/jpeg' || image.type === 'image/png')
             {
                 //envia pra base de dados
+                toast.success("Imagem salva com sucesso!");
                 handleUpload(image)
                 
             }else{

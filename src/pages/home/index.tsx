@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { Container } from "../../components/container";
 import { db } from "../../services/firebaseConnection";
-import { getDocs, query, collection, orderBy} from "firebase/firestore";
+import { getDocs, query, collection, orderBy, where} from "firebase/firestore";
 import { Link } from "react-router";
 
 interface carImage {
@@ -27,10 +27,18 @@ export function Home() {
     
     const [cars, setCars] = useState<carProps[]>([]); 
     const [loaded, setLoaded] = useState<string[]>([]);
+    const [input, setInput] = useState("");
 
     useEffect((()=>{
 
-        const fetchCars = async () =>
+        
+
+        loadCars();
+
+
+    }), [])
+
+    function loadCars ()
         {
             const queryRef = query(collection(db, "cars"), orderBy("created", "desc"));
 
@@ -50,27 +58,45 @@ export function Home() {
                 setCars(listcars);
             }).catch((error)=>{
                 console.log(error);
-            }
-            )
-            /*
-            const querySnapShot = await getDocs(queryRef)
-            let listcars = querySnapShot.docs.map((doc)=>({
-                ...doc.data()
-            })) as carProps[];
-            */
-
-
-
-            //setCars(listcars)
+            })
         }
 
-        fetchCars();
-
-
-    }), [])
-
+    // função para que seja exibida um card vazio enquanto a imagem do carro é carregada
     function handleLoad(id: string){
         setLoaded([...loaded, id]);
+    }
+
+    async function handleSearch(){
+        if(input === ""){
+            loadCars();
+            return;
+        }
+
+        setCars([])
+        setLoaded([])
+
+        const q = query(collection(db, "cars"), 
+        where("name", ">=", input.toLocaleUpperCase()),
+        where("name", "<=", input.toLocaleUpperCase() + "/uf8ff"))
+
+        getDocs(q).then((snapshot)=>{
+                let listcars = [] as carProps[];
+                snapshot.forEach((doc)=>{
+                    listcars.push({
+                        id: doc?.id,
+                        name: doc.data()?.name,
+                        year: doc.data().year,
+                        km: doc.data()?.km,
+                        price: doc.data()?.price,
+                        city: doc.data()?.city,
+                        imagesCar: doc.data()?.imagesCar
+                    })
+                })
+                setCars(listcars);
+            }).catch((error)=>{
+                console.log(error);
+            })
+
     }
     
     return(
@@ -80,8 +106,10 @@ export function Home() {
                         type="text"
                         placeholder="Digite o nome do carro..."
                         className="w-full h-9 px-3 border-2 border-gray-400 rounded-lg outline-none"
+                        value={input}
+                        onChange={(e)=>setInput(e.target.value)}
                     />
-                    <button className="bg-red-500 h-9 px-8 text-white font-medium text-lg rounded-lg">
+                    <button className="bg-red-500 h-9 px-8 text-white font-medium text-lg rounded-lg cursor-pointer" onClick={handleSearch}>
                         Buscar
                     </button>
                 </section>
@@ -93,7 +121,7 @@ export function Home() {
                 <main className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {cars.map(car=> 
                      (
-                        <Link className="w-full bg-white rounded-lg" id={car.id} to={`cardetails/${car.id}`}>
+                        <Link key={car.id} className="w-full bg-white rounded-lg" id={car.id} to={`cardetails/${car.id}`}>
 
                             <div className="w-full bg-slate-200 rounded-lg mb-2 h-56 transition-all hover:scale-105"
                             style={{display: loaded.includes(car.id)? "none": "block"}}
@@ -126,7 +154,6 @@ export function Home() {
                     
                 </main>
         </Container>
-
 
     )
 }

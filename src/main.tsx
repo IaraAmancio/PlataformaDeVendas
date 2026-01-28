@@ -18,7 +18,7 @@ import 'swiper/css/scrollbar';
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <Toaster position="top-center" reverseOrder={false}/>
+      <Toaster position="top-right" reverseOrder={false}/>
       <RouterProvider router={router}/>      
     </AuthProvider>
   </StrictMode>,
