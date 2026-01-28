@@ -1,11 +1,10 @@
 
-import { useEffect, useState, useContext, use } from "react";
+import { useEffect, useState, useContext } from "react";
 import { Container } from "../../components/container";
 import { DashboardHeader } from "../../components/painelHeader";
 import { db, storage } from "../../services/firebaseConnection";
 import { collection, query, where, getDocs, deleteDoc, doc } from "firebase/firestore";
 import { authContext } from "../../contexts/authContext";
-import { Link } from "react-router";
 import { FiTrash2 } from "react-icons/fi";
 import { deleteObject, ref } from "firebase/storage";
 
