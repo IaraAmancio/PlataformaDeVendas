@@ -6,6 +6,7 @@ import { RouterProvider } from 'react-router';
 import {Toaster} from 'react-hot-toast';
 import  AuthProvider from './contexts/authContext.tsx';
 
+
 import { register } from 'swiper/element/bundle';
 
 register();
