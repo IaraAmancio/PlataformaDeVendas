@@ -112,7 +112,7 @@ export function CarDetails() {
                             car?.imagesCar.map((carImage)=>(
                                 <SwiperSlide key={carImage.name}>
                                     <img
-                                        className="w-full h-96 object-cover"
+                                        className="w-full h-96 object-contain"
                                         src={carImage.url}
                                         alt="Imagem do carro"
                                     />                                
