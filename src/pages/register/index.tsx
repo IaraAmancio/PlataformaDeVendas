@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Logo from "./../../assets/logo.svg" ;
 import { Link, useNavigate } from "react-router";
 import { Container } from "../../components/container";
@@ -27,6 +27,7 @@ export function Register() {
 
     const navigate = useNavigate();
     const { handleInfoUser } = useContext(authContext);
+    const [isPending, setIsPending] = useState(false);
 
     const {register, handleSubmit, formState: {errors}} = useForm<FormData>({
         resolver: zodResolver(schema),
@@ -41,6 +42,7 @@ export function Register() {
     },[])
 
     function onSubmit(data: FormData){
+        setIsPending(true);
         createUserWithEmailAndPassword(auth, data.email, data.password).then(
         async (user) =>{
                 toast.success("Usuário cadastrado com Sucesso!");
@@ -58,6 +60,7 @@ export function Register() {
                 navigate("/dashboard", {replace: true})
             }
         ).catch((error)=>{
+            setIsPending(false);
             console.log("ERRO AO CADASTRAR USUARIO!");
             console.log(error);
         })
@@ -109,7 +112,7 @@ export function Register() {
                         />                    
                     </div>
 
-                    <button type="submit" className=" w-full h-10 bg-zinc-900 text-white font-medium rounded-md cursor-pointer">
+                    <button type="submit" disabled={isPending} className=" w-full h-10 bg-zinc-900 text-white font-medium rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-default">
                         Cadastrar
                     </button>
                 </form>

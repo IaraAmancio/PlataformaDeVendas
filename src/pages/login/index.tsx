@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState} from "react";
 import Logo from "./../../assets/logo.svg" ;
 import { Link, useNavigate } from "react-router";
 import { Container } from "../../components/container";
@@ -22,6 +22,7 @@ type FormData = z.infer<typeof schema>
 
 export function Login() {
     const navigate = useNavigate();
+    const [ isPending, setIsPending ] = useState(false);
 
     const {register, handleSubmit, formState: {errors}} = useForm<FormData>({
         resolver: zodResolver(schema),
@@ -29,16 +30,18 @@ export function Login() {
     })
 
     function onSubmit(data: FormData){
-        signInWithEmailAndPassword(auth, data.email, data.password).then(
-            (user)=>{
-                toast.success("LOGADO COM SUCESSO!")
-                navigate("/dashboard", {replace:true});
-                console.log(user)
-            }
-        ).catch((error)=>{
-            toast.error("Erro ao fazer o Login!")
-            console.log(error)
-        })
+            setIsPending(true);
+            signInWithEmailAndPassword(auth, data.email, data.password).then(
+                (user)=>{
+                    toast.success("LOGADO COM SUCESSO!")
+                    navigate("/dashboard", {replace:true});
+                    console.log(user)
+                }
+            ).catch((error)=>{
+                setIsPending(false);
+                toast.error("Erro ao fazer o Login!")
+                console.log(error)
+            })
     }
 
     useEffect((()=>{
@@ -84,11 +87,12 @@ export function Login() {
                         />                    
                     </div>
 
-                    <button type="submit" className=" w-full h-10 bg-zinc-900 text-white font-medium rounded-md cursor-pointer">
+                    <button type="submit" disabled={isPending} className=" w-full h-10 bg-zinc-900 text-white font-medium rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-no-drop">
                         Acessar
                     </button>
                 </form>
                 <p className="mt-2">Ainda não possui uma conta? <Link to="/register">Cadastra-se</Link></p>
+            
             </div>
         </Container>
 

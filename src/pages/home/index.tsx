@@ -30,12 +30,7 @@ export function Home() {
     const [input, setInput] = useState("");
 
     useEffect((()=>{
-
-        
-
         loadCars();
-
-
     }), [])
 
     function loadCars ()
@@ -121,20 +116,20 @@ export function Home() {
                 <main className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {cars.map(car=> 
                      (
-                        <Link key={car.id} className="w-full bg-white rounded-lg" id={car.id} to={`cardetails/${car.id}`}>
-
-                            <div className="w-full bg-slate-200 rounded-lg mb-2 h-56 transition-all hover:scale-105"
-                            style={{display: loaded.includes(car.id)? "none": "block"}}
-                            >
-                            </div>
-    
-                            <img
-                                src={car.imagesCar[0].url}
-                                alt="img carro"
-                                className="w-full rounded-lg mb-2 h-56 object-cover transition-all hover:scale-105"
-                                onLoad={()=>handleLoad(car.id)}
-                                style={{display: loaded.includes(car.id)? "block": "none"}}
-                            />                            
+                        <Link key={car.id} className="w-full bg-white rounded-lg" id={car.id} to={`cardetails/${car.id}`}>             
+                
+                            <div className="w-full h-56 mb-2">
+                                { !loaded? (<div className="w-full bg-slate-200 rounded-lg h-56"></div>):
+                                (
+                                <img
+                                    src={car.imagesCar[0].url}
+                                    alt="img carro"
+                                    className="w-full rounded-lg h-56 object-cover transition-all hover:scale-105"
+                                    onLoad={()=>handleLoad(car.id)}
+                                />
+                                ) 
+                                }
+                            </div>                          
 
                             <p className="font-bold mt-1 mb-2 px-2">{car?.name}</p>
                             <div className="flex flex-col px-2">
